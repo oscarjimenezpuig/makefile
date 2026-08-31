@@ -2,8 +2,8 @@
 # VARIABLES
 # ============================================================
 
-TARGET = holamundo
-SCRS = holamundo.c
+TARGET = 
+SCRS = 
 LINK = #aqui irian las banderas -lm, -X11, etc..
 
 # ============================================================
