@@ -2,8 +2,8 @@
 # VARIABLES
 # ============================================================
 
-TARGET = 
-SCRS = 
+TARGET = stack 
+SCRS = stack.c
 LINK = #aqui irian las banderas -lm, -X11, etc..
 
 # ============================================================
@@ -23,10 +23,10 @@ OBJS = $(SCRS:.c=.o)
 # TARGETS
 # ============================================================
 
-.PHONY: all package clean release debug
+.PHONY: all package clean clear_screen release debug 
 
 
-all: $(TARGET)
+all: clear_screen $(TARGET)
 
 
 # ============================================================
@@ -55,7 +55,14 @@ package: $(OBJS)
 
 
 # ============================================================
-# LIMPIEZA
+# LIMPIEZA PANTALLA
+# ============================================================
+
+clear_screen:
+	clear
+
+# ============================================================
+# LIMPIEZA ARCHIVOS
 # ============================================================
 
 clean:
