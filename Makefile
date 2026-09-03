@@ -1,30 +1,49 @@
 # ============================================================
-# VARIABLES
+# PROYECTO
 # ============================================================
 
 TARGET = 
-SCRS = 
-LINK = #aqui irian las banderas -lm, -X11, etc..
+SRCS   = 
 
 # ============================================================
-# VARIABLES ESTATICAS
+# COMPILADOR
 # ============================================================
 
 CC = gcc
+
+# Opciones de compilación
 CFLAGS = -Wall -Wextra
 
-PACK = ar
-PFLAGS = -rcs
+# Opciones para el enlazador
+LDFLAGS =
 
-OBJS = $(SCRS:.c=.o)
+# Bibliotecas
+LDLIBS =
+# Ejemplos:
+# LDLIBS += -lm
+# LDLIBS += -lX11
+
+
+# ============================================================
+# LIBRERIA ESTATICA
+# ============================================================
+
+AR     = ar
+ARFLAGS = rcs
+
+
+# ============================================================
+# OBJETOS
+# ============================================================
+
+OBJS = $(SRCS:.c=.o)
 
 
 # ============================================================
 # TARGETS
 # ============================================================
 
-.PHONY: all package clean clear_screen release debug 
-
+.PHONY: all debug release package clean clear_screen
 
 all: clear_screen $(TARGET)
 
@@ -34,8 +53,7 @@ all: clear_screen $(TARGET)
 # ============================================================
 
 $(TARGET): $(OBJS)
-	$(CC) $(CFLAGS) -o $@ $^ $(LINK)
-
+	$(CC) $(LDFLAGS) -o $@ $^ $(LDLIBS)
 
 
 # ============================================================
@@ -47,22 +65,23 @@ $(TARGET): $(OBJS)
 
 
 # ============================================================
-# LIBRERIA
+# LIBRERIA ESTATICA
 # ============================================================
 
 package: $(OBJS)
-	$(PACK) $(PFLAGS) lib$(TARGET).a $(OBJS)
+	$(AR) $(ARFLAGS) lib$(TARGET).a $(OBJS)
 
 
 # ============================================================
-# LIMPIEZA PANTALLA
+# LIMPIAR PANTALLA
 # ============================================================
 
 clear_screen:
 	clear
 
+
 # ============================================================
-# LIMPIEZA ARCHIVOS
+# LIMPIEZA
 # ============================================================
 
 clean:
@@ -83,6 +102,6 @@ release: $(TARGET)
 # ============================================================
 
 debug: CFLAGS += -g -fsanitize=address,undefined
+debug: LDFLAGS += -fsanitize=address,undefined
 debug: clean
 debug: $(TARGET)
-
