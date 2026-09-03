@@ -3,7 +3,14 @@
 # ============================================================
 
 TARGET = 
-SRCS   = 
+SRCS   =  
+
+# Archivo que almacena el tipo de compilación
+# N = normal
+# R = release
+# D = debug
+COMPILATION_FILE = compilation
+
 
 # ============================================================
 # COMPILADOR
@@ -11,14 +18,11 @@ SRCS   =
 
 CC = gcc
 
-# Opciones de compilación
 CFLAGS = -Wall -Wextra
 
-# Opciones para el enlazador
 LDFLAGS =
-
-# Bibliotecas
 LDLIBS =
+
 # Ejemplos:
 # LDLIBS += -lm
 # LDLIBS += -lX11
@@ -28,7 +32,7 @@ LDLIBS =
 # LIBRERIA ESTATICA
 # ============================================================
 
-AR     = ar
+AR      = ar
 ARFLAGS = rcs
 
 
@@ -45,7 +49,27 @@ OBJS = $(SRCS:.c=.o)
 
 .PHONY: all debug release package clean clear_screen
 
-all: clear_screen $(TARGET)
+
+# ============================================================
+# FUNCION: COMPROBAR TIPO DE COMPILACION
+# ============================================================
+
+define CHECK_COMPILATION
+	@if [ ! -f $(COMPILATION_FILE) ] || [ "$$(cat $(COMPILATION_FILE))" != "$(1)" ]; then \
+		$(MAKE) clean; \
+	fi
+endef
+
+
+# ============================================================
+# COMPILACION NORMAL
+# ============================================================
+
+all: clear_screen
+	$(call CHECK_COMPILATION,N)
+	$(MAKE) $(TARGET)
+	@echo "N" > $(COMPILATION_FILE)
+	@echo "Normal compilation"
 
 
 # ============================================================
@@ -93,8 +117,12 @@ clean:
 # ============================================================
 
 release: CFLAGS += -O3
-release: clean
-release: $(TARGET)
+
+release:
+	$(call CHECK_COMPILATION,R)
+	$(MAKE) $(TARGET)
+	@echo "R" > $(COMPILATION_FILE)
+	@echo "Release compilation"
 
 
 # ============================================================
@@ -103,5 +131,9 @@ release: $(TARGET)
 
 debug: CFLAGS += -g -fsanitize=address,undefined
 debug: LDFLAGS += -fsanitize=address,undefined
-debug: clean
-debug: $(TARGET)
+
+debug:
+	$(call CHECK_COMPILATION,D)
+	$(MAKE) $(TARGET)
+	@echo "D" > $(COMPILATION_FILE)
+	@echo "Debug compilation"
