@@ -2,8 +2,8 @@
 # PROYECTO
 # ============================================================
 
-TARGET = 
-SRCS   =  
+TARGET = tree
+SRCS   = tree.c
 
 # Archivo que almacena el tipo de compilación
 # N = normal
@@ -19,7 +19,6 @@ COMPILATION_FILE = compilation
 CC = gcc
 
 CFLAGS = -Wall -Wextra
-
 LDFLAGS =
 LDLIBS =
 
@@ -37,6 +36,24 @@ ARFLAGS = rcs
 
 
 # ============================================================
+# TIPO DE COMPILACION
+# ============================================================
+
+MODE = N
+
+ifeq ($(MAKECMDGOALS),release)
+	MODE = R
+	CFLAGS += -O3
+endif
+
+ifeq ($(MAKECMDGOALS),debug)
+	MODE = D
+	CFLAGS += -g -fsanitize=address,undefined
+	LDFLAGS += -fsanitize=address,undefined
+endif
+
+
+# ============================================================
 # OBJETOS
 # ============================================================
 
@@ -47,29 +64,34 @@ OBJS = $(SRCS:.c=.o)
 # TARGETS
 # ============================================================
 
-.PHONY: all debug release package clean clear_screen
-
-
-# ============================================================
-# FUNCION: COMPROBAR TIPO DE COMPILACION
-# ============================================================
-
-define CHECK_COMPILATION
-	@if [ ! -f $(COMPILATION_FILE) ] || [ "$$(cat $(COMPILATION_FILE))" != "$(1)" ]; then \
-		$(MAKE) clean; \
-	fi
-endef
+.PHONY: all release debug package clean clear_screen
 
 
 # ============================================================
 # COMPILACION NORMAL
 # ============================================================
 
-all: clear_screen
-	$(call CHECK_COMPILATION,N)
-	$(MAKE) $(TARGET)
+all: clear_screen check_compilation $(TARGET)
 	@echo "N" > $(COMPILATION_FILE)
 	@echo "Normal compilation"
+
+
+# ============================================================
+# RELEASE
+# ============================================================
+
+release: clear_screen check_compilation $(TARGET)
+	@echo "R" > $(COMPILATION_FILE)
+	@echo "Release compilation"
+
+
+# ============================================================
+# DEBUG
+# ============================================================
+
+debug: clear_screen check_compilation $(TARGET)
+	@echo "D" > $(COMPILATION_FILE)
+	@echo "Debug compilation"
 
 
 # ============================================================
@@ -97,6 +119,22 @@ package: $(OBJS)
 
 
 # ============================================================
+# COMPROBAR TIPO DE COMPILACION
+# ============================================================
+
+check_compilation:
+	@if [ ! -f $(COMPILATION_FILE) ]; then \
+		echo "No previous compilation."; \
+		rm -f $(OBJS) $(TARGET) lib$(TARGET).a; \
+	elif [ "$$(cat $(COMPILATION_FILE))" != "$(MODE)" ]; then \
+		echo "Compilation mode changed: $$(cat $(COMPILATION_FILE)) -> $(MODE)"; \
+		rm -f $(OBJS) $(TARGET) lib$(TARGET).a; \
+	else \
+		echo "Compilation mode unchanged: $(MODE)"; \
+	fi
+
+
+# ============================================================
 # LIMPIAR PANTALLA
 # ============================================================
 
@@ -110,30 +148,3 @@ clear_screen:
 
 clean:
 	rm -f $(OBJS) $(TARGET) lib$(TARGET).a
-
-
-# ============================================================
-# RELEASE
-# ============================================================
-
-release: CFLAGS += -O3
-
-release:
-	$(call CHECK_COMPILATION,R)
-	$(MAKE) $(TARGET)
-	@echo "R" > $(COMPILATION_FILE)
-	@echo "Release compilation"
-
-
-# ============================================================
-# DEBUG
-# ============================================================
-
-debug: CFLAGS += -g -fsanitize=address,undefined
-debug: LDFLAGS += -fsanitize=address,undefined
-
-debug:
-	$(call CHECK_COMPILATION,D)
-	$(MAKE) $(TARGET)
-	@echo "D" > $(COMPILATION_FILE)
-	@echo "Debug compilation"
