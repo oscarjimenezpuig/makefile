@@ -2,8 +2,8 @@
 # PROYECTO
 # ============================================================
 
-TARGET = tree
-SRCS   = tree.c
+TARGET = 
+SRCS   = 
 
 # Archivo que almacena el tipo de compilación
 # N = normal
